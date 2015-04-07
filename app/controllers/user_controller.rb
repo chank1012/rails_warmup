@@ -3,19 +3,30 @@ class UserController < ApplicationController
   end
 
   def index_error
-    render index
+    @error_code = params[:error].to_i
+    error_msg_hash =
+      {-1 => "The user name should be 5~20 characters long. Please try again.",
+       -2 => "The password should be 8~20 characters long. Please try again.",
+       -3 => "This user name already exists. Please try again.",
+       -4 => "Invalid username and password combination. Please try again. "}
+    @error_msg = error_msg_hash[@error_code]
   end
 
   def create
     if params[:login]
       login
-      render json: @result
+    elsif params[:signup]
+      signup
     else
-      if params[:signup]
-        signup
-        render json: @result
-      else
-      end
+      render nothing: true
+    end
+    hash = JSON.parse @result
+    if hash["error_code"] != nil
+      @error_code = hash["error_code"]
+      redirect_to :action => :index_error, :error => @error_code
+    else
+      @username = hash["user_name"]
+      @count = hash["login_count"]
     end
   end
 
@@ -44,7 +55,7 @@ class UserController < ApplicationController
       @result = { user_name: @user.username, login_count: @user.count }.to_json
     else
       err = get_error_code
-      @result = { error_code: err }
+      @result = { error_code: err }.to_json
     end
   end
 
@@ -58,8 +69,26 @@ class UserController < ApplicationController
     end
   end
 
-  def clearData
+  def clear_data
     User.all.destroy
+  end
+
+
+  # 3 API Renderer
+
+  def render_signup
+    signup
+    render json: @result
+  end
+
+  def render_login
+    login
+    render json: @result
+  end
+
+  def render_clear_data
+    clear_data
+    render nothing: true
   end
 
 private

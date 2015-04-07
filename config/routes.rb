@@ -1,5 +1,11 @@
 Rails.application.routes.draw do
 
+  post '/signup', controller: 'user', action: 'render_signup'
+  post '/login', controller: 'user', action: 'render_login'
+  post '/clearData', controller: 'user', action: 'render_clear_data'
+
+  get '/error', controller: 'user', action: 'index_error'
+
   resources :user do
   end
 
