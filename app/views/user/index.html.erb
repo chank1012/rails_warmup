@@ -1,0 +1,16 @@
+<h1>User#index</h1>
+<%= form_for :user do |f| %>
+<table>
+<tr>
+  <td><%= f.label :username %></td>
+  <td><%= f.text_field :username %></td>
+</tr>
+<tr>
+  <td><%= f.label :password %></td>
+  <td><%= f.text_field :password %></td>
+</tr>
+</table>
+
+<%= f.submit 'Login', :name => 'login' %>
+<%= f.submit 'Sign Up', :name => 'signup' %>
+<% end %>
