@@ -1,4 +1,7 @@
 class UserController < ApplicationController
+
+  skip_before_filter :verify_authenticity_token
+
   def index
   end
 
@@ -19,6 +22,7 @@ class UserController < ApplicationController
       signup
     else
       render nothing: true
+      return
     end
     hash = JSON.parse @result
     if hash["error_code"] != nil
@@ -70,7 +74,7 @@ class UserController < ApplicationController
   end
 
   def clear_data
-    User.all.destroy
+    User.delete_all
   end
 
 
