@@ -22,24 +22,44 @@ class UserController < ApplicationController
   def show
   end
 
+  def get_error_code
+    if @user.errors.any?
+      @user.errors.details[:username].each do |e|
+        return -1 if e[:error] == :invalid_length
+      end
+      @user.errors.details[:password].each do |e|
+        return -2 if e[:error] == :invalid_length
+      end
+      @user.errors.details[:username].each do |e|
+        return -3 if e[:error] == :taken
+      end
+    end
+    return 0
+  end
+
   def signup
     @user = User.new(user_params)
-    if @user.save
+    if @user.valid?
+      @user.save
       @result = { user_name: @user.username, login_count: @user.count }.to_json
     else
-      @result = { error_code: -1 }.to_json
+      err = get_error_code
+      @result = { error_code: err }
     end
   end
 
   def login
-    begin
-      @user = User.find(user_params)
+    @user = User.find_by(user_params)
+    if @user != nil
       @user.increment!(:count)
       @result = { user_name: @user.username, login_count: @user.count }.to_json
-    rescue ActiveRecord::RecordNotFound
-      @result = { error_code: -1 }.to_json
-      return
+    else
+      @result = { error_code: -4 }.to_json
     end
+  end
+
+  def clearData
+    User.all.destroy
   end
 
 private
